@@ -7,7 +7,10 @@ export const MaterialEditorForm = ({ onSubmit }) => {
     actions.resetForm();
   };
   return (
-    <Formik initialValues={{ title: '', link: '' }} onSubmit={handleSubmit}>
+    <Formik
+      initialValues={{ title: '', link: '', description: '' }}
+      onSubmit={handleSubmit}
+    >
       {({ isSubmitting }) => (
         <Form>
           <label>
@@ -18,6 +21,11 @@ export const MaterialEditorForm = ({ onSubmit }) => {
           <label>
             Ссылка
             <Field name="link" type="text" />
+          </label>
+          <br />
+          <label>
+            Описание
+            <Field name="description" type="text" />
           </label>
           <br />
           <button type="submit" disabled={isSubmitting}>
