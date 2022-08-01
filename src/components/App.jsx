@@ -11,18 +11,32 @@ export const App = () => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-
-    API.getMaterials()
-      .then(data => {
-        console.log(data);
-        setMaterials([...data]);
-      })
-      .catch(error => {
+    const fetchMaterials = async () => {
+      try {
+        setIsLoading(true);
+        const materials = await API.getMaterials();
+        setMaterials(materials);
+        setIsLoading(false);
+      } catch (error) {
         setError(true);
+        setIsLoading(false);
         console.log(error);
-      })
-      .finally(() => setIsLoading(false));
+      }
+    };
+
+    fetchMaterials();
+    // setIsLoading(true);
+
+    //   API.getMaterials()
+    //     .then(data => {
+    //       console.log(data);
+    //       setMaterials([...data]);
+    //     })
+    //     .catch(error => {
+    //       setError(true);
+    //       console.log(error);
+    //     })
+    //     .finally(() => setIsLoading(false));
   }, []);
 
   const addMaterial = async values => {
@@ -69,7 +83,7 @@ export const App = () => {
       )}
       <MaterialEditorForm onSubmit={addMaterial} />
       {isLoading ? (
-        <h1>{'Загружаем материалы'}</h1>
+        'Загружаем материалы'
       ) : (
         <MaterialList
           items={materials}
