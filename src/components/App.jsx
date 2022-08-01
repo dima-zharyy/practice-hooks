@@ -1,88 +1,82 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout';
 import { MaterialEditorForm } from './MaterialEditorForm/MaterialEditorForm';
 import { MaterialList } from './MaterialList/MaterialList';
 import * as API from 'services/api';
 
-export class App extends Component {
-  state = {
-    materials: [],
-    isLoading: false,
-    error: false,
-  };
+export const App = () => {
+  const [materials, setMaterials] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  async componentDidMount() {
-    try {
-      this.setState({ isLoading: true });
-      const materials = await API.getMaterials();
-      this.setState({ materials, isLoading: false });
-    } catch (error) {
-      this.setState({ error: true, isLoading: false });
-      console.log(error);
-    }
-  }
+  useEffect(() => {
+    setIsLoading(true);
 
-  addMaterial = async values => {
+    API.getMaterials()
+      .then(data => {
+        console.log(data);
+        setMaterials([...data]);
+      })
+      .catch(error => {
+        setError(true);
+        console.log(error);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const addMaterial = async values => {
     try {
       const material = await API.addMaterial(values);
-      this.setState(state => ({
-        materials: [...state.materials, material],
-      }));
+      setMaterials(state => [...state, material]);
     } catch (error) {
-      this.setState({ error: true, isLoading: false });
+      setError(true);
+      setIsLoading(false);
       console.log(error);
     }
   };
 
-  deleteMaterial = async id => {
+  const deleteMaterial = async id => {
     try {
       await API.deleteMaterial(id);
-      this.setState(state => ({
-        materials: state.materials.filter(material => material.id !== id),
-      }));
+      setMaterials(state => state.filter(item => item.id !== id));
     } catch (error) {
-      this.setState({ error: true });
+      setError(true);
       console.log(error);
     }
   };
 
-  updateMaterial = async fields => {
+  const updateMaterial = async fields => {
     try {
       const updatedMaterial = await API.updateMaterial(fields);
-      this.setState(state => ({
-        materials: state.materials.map(material =>
-          material.id === fields.id ? updatedMaterial : material
-        ),
-      }));
+      setMaterials(state =>
+        state.map(item => (item.id === fields.id ? updatedMaterial : item))
+      );
     } catch (error) {
-      this.setState({ error: true });
+      setError(true);
       console.log(error);
     }
   };
 
-  render() {
-    const { materials, isLoading, error } = this.state;
-    return (
-      <Layout>
-        <GlobalStyle />
-        {error && (
-          <p>
-            Ой! Что-то пошло не так :( Перезагрузите страницу и попробуйте еще
-            раз.
-          </p>
-        )}
-        <MaterialEditorForm onSubmit={this.addMaterial} />
-        {isLoading ? (
-          'Загружаем материалы'
-        ) : (
-          <MaterialList
-            items={materials}
-            onDelete={this.deleteMaterial}
-            onUpdate={this.updateMaterial}
-          />
-        )}
-      </Layout>
-    );
-  }
-}
+  return (
+    <Layout>
+      <GlobalStyle />
+      {error && (
+        <p>
+          Ой! Что-то пошло не так :( Перезагрузите страницу и попробуйте еще
+          раз.
+        </p>
+      )}
+      <MaterialEditorForm onSubmit={addMaterial} />
+      {isLoading ? (
+        <h1>{'Загружаем материалы'}</h1>
+      ) : (
+        <MaterialList
+          items={materials}
+          onDelete={deleteMaterial}
+          onUpdate={updateMaterial}
+        />
+      )}
+    </Layout>
+  );
+};

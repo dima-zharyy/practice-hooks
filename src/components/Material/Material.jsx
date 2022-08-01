@@ -43,7 +43,13 @@ export const Material = ({ item, onUpdate, onDelete }) => {
       {isModalOpen && (
         <EditMaterialModal
           onClose={() => setIsModalOpen(false)}
-          onEdit={() => onUpdate({ id: item.id, title: Date.now() })}
+          onEdit={() =>
+            onUpdate({
+              id: item.id,
+              title: Date.now(),
+              description: Date.now() + 121321,
+            })
+          }
         />
       )}
     </div>
